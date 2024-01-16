@@ -6,6 +6,7 @@
 from flask import request, make_response, jsonify, session
 from flask_restful import Resource
 import time
+import re
 
 # Local imports
 from config import app, db, api, bcrypt
@@ -89,6 +90,27 @@ class Poasts(Resource):
             db.session.add(parent)
         db.session.commit()
 
+        text = data['text']
+
+        matches = re.findall(r'@(\w+)\b', text)  # Find matches in the text value
+        handles = [match for match in matches]
+        print(handles)
+
+        query = db.session.query(User).filter(User.handle.in_(handles))  # Filter by matches
+        results = query.all()
+        for result in results:
+            current_time_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            new_mention = Mention(
+                mentioner_id = data['user_id'],
+                mentioned_id = result.id,
+                poast_id = new_poast.id,
+                timestamp = current_time_str
+            )
+            db.session.add(new_mention)
+            
+        db.session.commit()
+        print([result.to_dict() for result in results])
+
         return make_response(new_poast.to_dict(), 201)
 
 class ThumbsUps(Resource):
@@ -134,6 +156,14 @@ class Notifications(Resource):
     def post(self):
         data = request.get_json()
 
+class Poast_by_id(Resource):
+    def get(self,id):
+        poast = db.session.get(Poast,id)
+        if poast:
+            return make_response(jsonify(poast.to_dict()), 200)
+        else:
+            return make_response({'error': 'not found'},404)
+
 class Thread(Resource):
     def get(self, root_id):
         root = Poast.query.get(root_id)
@@ -145,6 +175,15 @@ class Thread(Resource):
             authors.update({'_' + str(user.id): {'nickname': user.nickname, 'handle': user.handle}})
 
         tree_list = Tree(root_id)
+
+        pids = [p['poast_id'] for p in tree_list]
+        tree_mentions = []
+        for pid in pids:
+            mentions = Mention.query.filter_by(poast_id = pid).all()
+            for mention in mentions:
+                user = db.session.get(User, mention.mentioned_id)
+                authors.update({'_' + str(user.id): {'nickname': user.nickname, 'handle': user.handle}})
+
         return make_response(jsonify({'poasts': Tree(root_id)[::-1], 'users': authors}), 200)  # Return the tree as the response, with a 200 status code
 
 @app.post('/api/login')
@@ -176,6 +215,7 @@ api.add_resource(Thread, '/api/threads/<int:root_id>')
 
 api.add_resource(Users, '/api/users')
 api.add_resource(Poasts, '/api/poasts')
+api.add_resource(Poast_by_id, '/api/poasts/<int:id>')
 api.add_resource(Mentions, '/api/<string:handle>/mentions')
 api.add_resource(Follows, '/api/follows')
 api.add_resource(Notifications, '/api/<string:handle>/notifications')

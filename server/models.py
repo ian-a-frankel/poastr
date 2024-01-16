@@ -47,7 +47,7 @@ class Poast(db.Model, SerializerMixin):
     likes=db.relationship('ThumbsUp',back_populates='poast')
     mentioned=db.relationship('Mention',back_populates='poast')
 
-    serialize_only = ('id','text','user.handle','user.nickname','timestamp','ancestry', 'mentioned.handle','likes')
+    serialize_only = ('id','text','user.handle','user.nickname','timestamp','ancestry', 'mentioned','likes')
 
 class Mention(db.Model, SerializerMixin):
     __tablename__ = 'mention_table'
@@ -61,7 +61,7 @@ class Mention(db.Model, SerializerMixin):
     mentioned = db.relationship('User', foreign_keys=[mentioned_id])
     poast = db.relationship('Poast',back_populates='mentioned')
 
-    serialize_only = ('mentioner_id', 'mentioned_id', 'poast_id')
+    serialize_only = ('mentioner_id', 'mentioned_id', 'poast_id', 'mentioned.handle')
 
 class ThumbsUp(db.Model, SerializerMixin):
     table_name = 'thumbs_table'

@@ -6,6 +6,7 @@ function Thread({currentUser, base, setBase}) {
     const [data, setData] = useState({poasts: [], users: []})
     const [loaded, setLoaded] = useState(false)
     const [poast_dict, setPoast_dict] = useState({})
+    const [handles, setHandles] = useState([])
     
     const params = useParams()
     const root_id = Number(params.root_id)
@@ -77,6 +78,17 @@ function Thread({currentUser, base, setBase}) {
         setShown(new_ids)
     }
 
+    function expandable(pid) {
+        let result = false
+        for (let child_id of children_ids(pid)) {
+
+            if (!shown.includes(child_id)) {
+                result = true
+            }
+        }
+        return result
+    }
+
     function navigateReply(pid) {
         navigate(`/compose/${pid}`)
     }
@@ -132,19 +144,23 @@ function Thread({currentUser, base, setBase}) {
             }
             setPoast_dict(dictionary)
             setShown(allPoastIds)
-
+            let handles_ = []
+            for (let val of Object.values(res.users)) {    
+                handles_.push(`${val.handle}`)
+            }
+            setHandles(handles_)
         })
         .then(
             setLoaded(true)
         )
 
-    },[root_id]);
+    }, [root_id]);
 
     const shownPoasts = data.poasts.filter(poast => shown.includes(poast.poast_id))
     
         return(<>
             {shownPoasts.map((item) => {
-            return <Poast key={item.poast_id} replying_to={replying_to(item.ancestry)} navigateReply={navigateReply} poast={item} author={data.users[`_${item.user_id}`]} currentUser={currentUser} depth={depth_from_ancestry(item.ancestry)} hide={hide} showReplies={showReplies} setFocus={setFocus}/>})}
+            return <Poast key={item.poast_id} handles={handles} replying_to={replying_to(item.ancestry)} navigateReply={navigateReply} poast={item} author={data.users[`_${item.user_id}`]} currentUser={currentUser} depth={depth_from_ancestry(item.ancestry)} hide={hide} showReplies={showReplies} expandable={expandable(item.poast_id)} setFocus={setFocus}/>})}
         </>)
     
 }
