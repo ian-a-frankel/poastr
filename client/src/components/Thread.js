@@ -7,7 +7,8 @@ function Thread({currentUser, base, setBase}) {
     const [loaded, setLoaded] = useState(false)
     const [poast_dict, setPoast_dict] = useState({})
     const [handles, setHandles] = useState([])
-    
+    const [focusValue, setFocusValue] = useState(0)
+
     const params = useParams()
     const root_id = Number(params.root_id)
     const navigate = useNavigate()
@@ -44,6 +45,7 @@ function Thread({currentUser, base, setBase}) {
 
     function setFocus(pid) {
         setShown(anc_ids(pid).concat(children_ids(pid)))
+        setFocusValue(pid, true, true)
     }
 
     function showReplies(pid) {
@@ -158,10 +160,22 @@ function Thread({currentUser, base, setBase}) {
 
     const shownPoasts = data.poasts.filter(poast => shown.includes(poast.poast_id))
     
-        return(<>
+        return(<div className="thread">
             {shownPoasts.map((item) => {
-            return <Poast key={item.poast_id} handles={handles} replying_to={replying_to(item.ancestry)} navigateReply={navigateReply} poast={item} author={data.users[`_${item.user_id}`]} currentUser={currentUser} depth={depth_from_ancestry(item.ancestry)} hide={hide} showReplies={showReplies} expandable={expandable(item.poast_id)} setFocus={setFocus}/>})}
-        </>)
+            return <Poast key={item.poast_id}
+            handles={handles} 
+            replying_to={replying_to(item.ancestry)}
+            navigateReply={navigateReply} 
+            poast={item} 
+            author={data.users[`_${item.user_id}`]} 
+            currentUser={currentUser} 
+            depth={depth_from_ancestry(item.ancestry)} 
+            hide={hide} 
+            showReplies={showReplies} 
+            expandable={expandable(item.poast_id)} 
+            focusValue={focusValue}
+            setFocus={setFocus}/>})}
+        </div>)
     
 }
 

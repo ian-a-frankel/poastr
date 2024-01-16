@@ -7,6 +7,7 @@ import Signup from "./Signup";
 import Profile from "./Profile";
 import Feed from "./Feed";
 import Draft from "./Draft";
+import './app.css'
 
 function App() {
 
@@ -57,6 +58,8 @@ function App() {
     if (res.ok) {
       const data = await res.json()
       setCurrentUser(data)
+      console.log(data)
+      console.log(data)
     } else {
       alert('Invalid sign in')
     }
@@ -106,10 +109,10 @@ function App() {
 
   const router = createBrowserRouter(routes)
 
-  return(<>
+  return(<div className='base'>
   <h1>Welcome to Poastr, the free Poasting App</h1>
   <RouterProvider router={router}/>
-  </>);
+  </div>);
 }
 
 export default App;

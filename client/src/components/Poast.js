@@ -4,12 +4,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 
 
-function Poast({base, setBase, setFocus, handles, expandable, hide, showReplies, poast, author, replying_to, depth, currentUser, navigateReply}) {
+function Poast({base, setBase, focusValue, setFocus, handles, expandable, hide, showReplies, poast, author, replying_to, depth, currentUser, navigateReply}) {
     function indenter() {
         let indent
         let indentation = ""
         for (let i = 0; i < depth; i++) {
-            indentation = indentation + "................"
+            indentation = indentation + ""
             indent = indentation + "----"
         }
         return [indentation,indent]
@@ -63,7 +63,10 @@ function Poast({base, setBase, setFocus, handles, expandable, hide, showReplies,
             return <>{str}</>
         }
     }
-    return (<div>
+
+    const depthClass = Math.min(depth, 5)
+
+    return (<div className={poast.poast_id === focusValue ? "focused" : `unfocused${depthClass}`}>
         
         <p>{indenter()[0]} {author.nickname} (<NavLink to={`/profiles/${author.handle}`}> @{author.handle} </NavLink>) at {poast.timestamp} {FocusButton} {HideButton} {expandable ? ExpandButton : <></>}</p>
         {replying_to[0] ? replies() : <></>}

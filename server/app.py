@@ -58,9 +58,6 @@ class Users(Resource):
         db.session.commit()
         return make_response(new_user.to_dict(), 201)
 
-    def patch(self):
-        data = request.get_json()
-
 class Poasts(Resource):
     def post(self):
         current_time_str = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -141,6 +138,16 @@ class UserByHandle(Resource):
         print(response_dict)
         return make_response(response_dict, 200)
         
+    def patch(self,handle):
+        user = User.query.filter_by(handle=handle).first()
+        data = request.json
+        if data['nickname']:
+            setattr(user,'nickname',data['nickname'])
+        if data['bio']:
+            setattr(user,'bio',data['bio'])
+        db.session.add(user)
+        db.session.commit()
+        return make_response(jsonify(data), 201)
 
 class Follows(Resource):
     def post(self):
@@ -193,7 +200,8 @@ def login():
     user = User.query.filter(User.handle == handle).first()
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         session["user_id"] = user.id
-        return user.to_dict(), 201
+        print(user.to_dict())
+        return make_response(user.to_dict(), 201)
     else:
         return { "message": "Invalid username or password" }, 401
 

@@ -1,0 +1,57 @@
+.thread {
+    max-height: 80vh;
+    width: 80%;
+    overflow-y: auto;
+    background-color:rgb(237, 204, 244);
+    scrollbar-color: darkblue;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.base {
+    background-color:bisque;
+}
+
+button {
+    background-color: rgb(32, 51, 51);
+    color:rgb(167, 222, 115)
+}
+
+.focused {
+    background-color: lightgreen;
+    color:royalblue;
+}
+
+.unfocused0 {
+    background-color:rgb(100, 200, 240);
+    color:darkslategray;
+}
+
+.unfocused1 {
+    background-color:rgb(120, 180, 240);
+    margin-left: 4%;
+    color:darkslategray;
+}
+
+.unfocused2 {
+    background-color:rgb(140, 160, 240);
+    margin-left: 8%;
+    color:darkslategray;
+}
+
+.unfocused3 {
+    background-color:rgb(160, 140, 240);
+    margin-left: 12%;
+    color:darkslategray;
+}
+
+.unfocused4 {
+    background-color:rgb(180, 120, 240);
+    margin-left: 16%;
+    color:darkslategray;
+}
+
+.unfocused5 {
+    background-color:rgb(200, 100, 240);
+    margin-left: 20%;
+    color:darkslategray;
+}
