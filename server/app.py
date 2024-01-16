@@ -130,10 +130,23 @@ class UserByHandle(Resource):
 
     def get(self,handle):
         user = User.query.filter_by(handle=handle).first()
+        followers = Follow.query.filter_by(writer_id=user.id).all()
+        following = Follow.query.filter_by(reader_id=user.id).all()
+        follower_data = []
+        following_data = []
+        for f in followers:
+            reader = db.session.get(User, f.reader_id)
+            follower_data.append({'handle': reader.handle, 'nickname': reader.nickname})
+        for f in following:
+            writer = db.session.get(User, f.writer_id)
+            following_data.append({'handle': writer.handle, 'nickname': writer.nickname})
+
         response_dict = {
             'handle': user.handle,
             'nickname': user.nickname,
-            'bio': user.bio
+            'bio': user.bio,
+            'followers': follower_data,
+            'following': following_data
         }
         print(response_dict)
         return make_response(response_dict, 200)
