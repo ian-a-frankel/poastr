@@ -60,6 +60,7 @@ function Profile({currentUser}) {
         
     return (userData.bio ? <UserProfile
         currentUser={currentUser}
+        navigate={navigate}
         userData={userData}
         handleSubmit={handleSubmit}
         updating={updating}
