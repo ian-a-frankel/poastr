@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Poast from "./Poast"
+import NavBar from "./NavBar";
 
-function Thread({currentUser, base, setBase}) {
+function Thread({currentUser, focusValue, setFocusValue}) {
     const [data, setData] = useState({poasts: [], users: []})
     const [loaded, setLoaded] = useState(false)
     const [poast_dict, setPoast_dict] = useState({})
     const [handles, setHandles] = useState([])
-    const [focusValue, setFocusValue] = useState(0)
+    
 
     const params = useParams()
     const root_id = Number(params.root_id)
@@ -15,37 +16,44 @@ function Thread({currentUser, base, setBase}) {
     const [shown, setShown] = useState([])
 
     function children_ids(pid) {
-        const poast_ = data.poasts.find(poast => poast.poast_id === pid)
-        if (poast_.children === "") {
-            return []
-        } else {
-            const kidnums = []
-            const kidstrngs = poast_.children.split('_')
-            for (let kid of kidstrngs) {
-                kidnums.push(Number(kid))
+        if (loaded) {
+            const poast_ = data.poasts.find(poast => poast.poast_id === pid)
+            if (!poast_ || poast_.children === "") {
+                return []
+            } else {
+                const kidnums = []
+                const kidstrngs = poast_.children.split('_')
+                for (let kid of kidstrngs) {
+                    kidnums.push(Number(kid))
+                }
+                return kidnums
             }
-            return kidnums
         }
-        
+        return []
     }
 
     function anc_ids(pid) {
-        const poast_ = data.poasts.find(poast => poast.poast_id === pid)
-        if (poast_.ancestry === "") {
-            return []
-        } else {
-            const ancnums = []
-            const ancstrngs = poast_.ancestry.split('_')
-            for (let anc of ancstrngs) {
-                ancnums.push(Number(anc))
-            }
-            return ancnums
-        }   
-    }
+        if (loaded) {
+            const poast_ = data.poasts.find(poast => poast.poast_id === pid)
+            if (!poast_ || !poast_.ancestry) {
+                return []
+                } else {
+                    const ancnums = []
+                    const ancstrngs = poast_.ancestry.split('_')
+                    for (let anc of ancstrngs) {
+                        ancnums.push(Number(anc))
+                    }
+                    return ancnums
+                }   
+            } else {
 
+            
+                
+        }
+    }
     function setFocus(pid) {
         setShown(anc_ids(pid).concat(children_ids(pid)))
-        setFocusValue(pid, true, true)
+        setFocusValue(pid)
     }
 
     function showReplies(pid) {
@@ -99,27 +107,24 @@ function Thread({currentUser, base, setBase}) {
         
         let ancestors = []
 
-        if (loaded) {
-            if (ancestry === "") {
-                return []
-            }
-            let anc_ids = ancestry.split('_')
-            
-            let anc_user_ids = []
-            for (let i = 0; i < anc_ids.length - 1; i++) {
-                anc_user_ids[i] = '_' + poast_dict[`${anc_ids[i]}`]['user_id']
-            }
-
-            
-            for (let id of anc_user_ids) {
-                
-                if (!ancestors.includes(`@${data.users[`${id}`]['handle']}`)) {
-
-                    ancestors.push(data.users[`${id}`]['handle'])
-                }
-            }
-            
+        if (ancestry === "") {
+            return []
         }
+        let anc_ids = ancestry.split('_')
+            
+        let anc_user_ids = []
+        for (let i = 0; i < anc_ids.length - 1; i++) {
+            anc_user_ids[i] = '_' + poast_dict[`${anc_ids[i]}`]['user_id']
+        }
+            
+        for (let id of anc_user_ids) {
+                
+            if (!ancestors.includes(data.users[`${id}`]['handle'])) {
+                ancestors.push(data.users[`${id}`]['handle'])
+            }
+        }
+            
+        
         return ancestors;
     }
 
@@ -145,7 +150,13 @@ function Thread({currentUser, base, setBase}) {
                 dictionary[`${item.poast_id}`] = item
             }
             setPoast_dict(dictionary)
-            setShown(allPoastIds)
+            
+            if (loaded && allPoastIds.includes(focusValue)) {
+                setFocus(focusValue)
+            } else {
+                setShown(allPoastIds)
+            }
+            
             let handles_ = []
             for (let val of Object.values(res.users)) {    
                 handles_.push(`${val.handle}`)
@@ -160,7 +171,7 @@ function Thread({currentUser, base, setBase}) {
 
     const shownPoasts = data.poasts.filter(poast => shown.includes(poast.poast_id))
     
-        return(<div className="thread">
+        return(loaded ? <><div className="thread">
             {shownPoasts.map((item) => {
             return <Poast key={item.poast_id}
             handles={handles} 
@@ -175,7 +186,9 @@ function Thread({currentUser, base, setBase}) {
             expandable={expandable(item.poast_id)} 
             focusValue={focusValue}
             setFocus={setFocus}/>})}
-        </div>)
+        </div>
+        <NavBar currentUser={currentUser} navigate={navigate}/>
+        </> : <h1>loading</h1>)
     
 }
 

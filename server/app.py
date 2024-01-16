@@ -91,7 +91,7 @@ class Poasts(Resource):
 
         matches = re.findall(r'@(\w+)\b', text)  # Find matches in the text value
         handles = [match for match in matches]
-        print(handles)
+        
 
         query = db.session.query(User).filter(User.handle.in_(handles))  # Filter by matches
         results = query.all()
@@ -148,7 +148,7 @@ class UserByHandle(Resource):
             'followers': follower_data,
             'following': following_data
         }
-        print(response_dict)
+        
         return make_response(response_dict, 200)
         
     def patch(self,handle):
@@ -184,6 +184,15 @@ class Poast_by_id(Resource):
         else:
             return make_response({'error': 'not found'},404)
 
+class PoastsByUser(Resource):
+    def get(self, handle):
+        print(handle)
+        user = User.query.filter_by(handle=handle).first()
+        all_poasts = Poast.query.filter_by(user_id=user.id).all()
+        res_list = [{'ancestry': p.ancestry, 'timestamp': p.timestamp, 'text': p.text} for p in all_poasts]
+
+        return {'poasts': res_list}, 200
+
 class Thread(Resource):
     def get(self, root_id):
         root = Poast.query.get(root_id)
@@ -213,7 +222,6 @@ def login():
     user = User.query.filter(User.handle == handle).first()
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         session["user_id"] = user.id
-        print(user.to_dict())
         return make_response(user.to_dict(), 201)
     else:
         return { "message": "Invalid username or password" }, 401
@@ -242,6 +250,7 @@ api.add_resource(Follows, '/api/follows')
 api.add_resource(Notifications, '/api/<string:handle>/notifications')
 api.add_resource(ThumbsUps, '/api/thumbs')
 api.add_resource(UserByHandle, '/api/users/<string:handle>')
+api.add_resource(PoastsByUser, '/api/poasts_by_user/<string:handle>')
 
 @app.route('/')
 def index():

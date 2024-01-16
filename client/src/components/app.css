@@ -1,6 +1,15 @@
 .thread {
     max-height: 80vh;
-    width: 80%;
+    width: 100%;
+    overflow-y: auto;
+    background-color:rgb(237, 204, 244);
+    scrollbar-color: darkblue;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.demithread {
+    max-height: 30vh;
+    width: 100%;
     overflow-y: auto;
     background-color:rgb(237, 204, 244);
     scrollbar-color: darkblue;
@@ -16,9 +25,39 @@ button {
     color:rgb(167, 222, 115)
 }
 
-.focused {
+.focused0 {
     background-color: lightgreen;
     color:royalblue;
+}
+
+.focused1 {
+    background-color: lightgreen;
+    color:royalblue;
+    margin-left: 4%;
+}
+
+.focused2 {
+    background-color: lightgreen;
+    color:royalblue;
+    margin-left: 8%;
+}
+
+.focused3 {
+    background-color: lightgreen;
+    color:royalblue;
+    margin-left: 12%;
+}
+
+.focused4 {
+    background-color: lightgreen;
+    color:royalblue;
+    margin-left: 16%;
+}
+
+.focused5 {
+    background-color: lightgreen;
+    color:royalblue;
+    margin-left: 20%;
 }
 
 .unfocused0 {

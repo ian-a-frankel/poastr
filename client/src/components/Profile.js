@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, NavLink } from "react-router-dom";
 import UpdateForm from "./UpdateForm";
 import UserProfile from "./UserProfile";
+import NavBar from "./NavBar";
+import Feed from "./Feed";
 
-function Profile({currentUser}) {
+function Profile({currentUser, setFocusValue}) {
 
     const [userData, setUserData] = useState({handle: "", nickname: "", bio: ""})
     const [loaded, setLoaded] = useState(false)
@@ -58,7 +60,7 @@ function Profile({currentUser}) {
         </div>)
       }
         
-    return (userData.bio ? <UserProfile
+    return (<div>{userData.bio ? <UserProfile
         currentUser={currentUser}
         navigate={navigate}
         userData={userData}
@@ -66,9 +68,7 @@ function Profile({currentUser}) {
         updating={updating}
         setBio={setBio}
         setUpdating={setUpdating}
-        setNickname={setNickname}/> : <h1>Loading...</h1>)
-
-    
+        setNickname={setNickname}/> : <h1>Loading...</h1>}<Feed navigate={navigate} setFocusValue={setFocusValue} handle={userData.handle}/><NavBar currentUser={currentUser} navigate={navigate}/></div>)
 
 }
 

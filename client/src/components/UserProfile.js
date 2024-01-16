@@ -11,8 +11,8 @@ function UserProfile({updating, navigate, userData, currentUser, setUpdating, se
           <td><p>Following:</p></td>
         </tr>
         <tr>
-          <td>{userData.followers ? userData.followers.map((item) => <p>{item.nickname} (<NavLink onClick={() => {navigate(`/profiles/${item.handle}`); window.location.reload(false)}} key={item.handle}>@{item.handle}</NavLink>)</p>) : <></>}</td>
-          <td>{userData.following ? userData.following.map((item) => <p>{item.nickname} (<NavLink onClick={() => {navigate(`/profiles/${item.handle}`); window.location.reload(false)}} key={item.handle + item.nickname}>@{item.handle}</NavLink>)</p>) : <></>}</td>
+          <td>{userData.followers ? <div className='demithread'> {userData.followers.map(item => <p>{item.nickname} (<NavLink onClick={() => {navigate(`/profiles/${item.handle}`); window.location.reload(false)}} key={item.handle}>@{item.handle}</NavLink>)</p>)}</div> : <></>}</td>
+          <td>{userData.following ? <div className='demithread'> {userData.following.map(item => <p>{item.nickname} (<NavLink onClick={() => {navigate(`/profiles/${item.handle}`); window.location.reload(false)}} key={item.handle + item.nickname}>@{item.handle}</NavLink>)</p>)}</div> : <></>}</td>
         </tr>
       </tbody>
     </table>
