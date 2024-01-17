@@ -165,7 +165,27 @@ class UserByHandle(Resource):
 class Follows(Resource):
     def post(self):
         data = request.get_json()
-
+        print(data)
+        reader = User.query.filter_by(handle = data['reader_handle']).first()
+        writer = User.query.filter_by(handle = data['writer_handle']).first()
+        if (not reader) or (not writer):
+            return make_response({'error': 'could not find one or both users'}, 501)
+        folla = Follow.query.filter_by(reader_id = reader.id, writer_id = writer.id).first()
+        if data['deleting'] == 'yes':
+            if folla:
+                db.session.delete(folla)
+                db.session.commit()
+                return make_response({'success': 'deleted'}, 204)
+            else:
+                return make_response({'error': 'already not following'},501)
+        else:
+            if folla:
+                return make_response({'error': ' already following'},501)
+            new_follow = Follow(reader_id = reader.id, writer_id = writer.id)
+            db.session.add(new_follow)
+            db.session.commit()
+            return make_response({'new_follower': {'handle': reader.handle, 'nickname': reader.nickname}}, 201)
+        
     def delete(self):
         pass
 
