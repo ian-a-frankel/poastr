@@ -1,9 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
-
-
-
 function Poast({base, setBase, focusValue, setFocus, handles, expandable, hide, showReplies, poast, author, replying_to, depth, currentUser, navigateReply}) {
     function indenter() {
         let indent
@@ -66,11 +63,11 @@ function Poast({base, setBase, focusValue, setFocus, handles, expandable, hide, 
 
     const depthClass = Math.min(depth, 5)
 
-    return (<div className={poast.poast_id === focusValue ? "focused" : `unfocused${depthClass}`}>
+    return (<div className={poast.poast_id === focusValue ? `focused${depthClass}` : `unfocused${depthClass}`}>
         
-        <p>{indenter()[0]} {author.nickname} (<NavLink to={`/profiles/${author.handle}`}> @{author.handle} </NavLink>) at {poast.timestamp} {FocusButton} {HideButton} {expandable ? ExpandButton : <></>}</p>
+        <p>{indenter()[0]} {author.nickname} (<NavLink to={`/profiles/${author.handle}`}> @{author.handle} </NavLink>) at {poast.timestamp} {FocusButton} {HideButton} {expandable ? ExpandButton : <></>} {currentUser ? <button onClick={() => {navigateReply(poast.poast_id)}}>Reply</button> : <></>}</p>
         {replying_to[0] ? replies() : <></>}
-        <p>{indenter()[1]} {breakTextByHandles().map(s => makeLink(s))} {currentUser ? <button onClick={() => {navigateReply(poast.poast_id)}}>Reply</button> : <></>}</p>
+        <p>{indenter()[1]} {breakTextByHandles().map(s => makeLink(s))} </p>
     </div>)
 
 }

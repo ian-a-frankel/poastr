@@ -91,7 +91,7 @@ class Poasts(Resource):
 
         matches = re.findall(r'@(\w+)\b', text)  # Find matches in the text value
         handles = [match for match in matches]
-        print(handles)
+        
 
         query = db.session.query(User).filter(User.handle.in_(handles))  # Filter by matches
         results = query.all()
@@ -130,12 +130,25 @@ class UserByHandle(Resource):
 
     def get(self,handle):
         user = User.query.filter_by(handle=handle).first()
+        followers = Follow.query.filter_by(writer_id=user.id).all()
+        following = Follow.query.filter_by(reader_id=user.id).all()
+        follower_data = []
+        following_data = []
+        for f in followers:
+            reader = db.session.get(User, f.reader_id)
+            follower_data.append({'handle': reader.handle, 'nickname': reader.nickname})
+        for f in following:
+            writer = db.session.get(User, f.writer_id)
+            following_data.append({'handle': writer.handle, 'nickname': writer.nickname})
+
         response_dict = {
             'handle': user.handle,
             'nickname': user.nickname,
-            'bio': user.bio
+            'bio': user.bio,
+            'followers': follower_data,
+            'following': following_data
         }
-        print(response_dict)
+        
         return make_response(response_dict, 200)
         
     def patch(self,handle):
@@ -152,7 +165,27 @@ class UserByHandle(Resource):
 class Follows(Resource):
     def post(self):
         data = request.get_json()
-
+        print(data)
+        reader = User.query.filter_by(handle = data['reader_handle']).first()
+        writer = User.query.filter_by(handle = data['writer_handle']).first()
+        if (not reader) or (not writer):
+            return make_response({'error': 'could not find one or both users'}, 501)
+        folla = Follow.query.filter_by(reader_id = reader.id, writer_id = writer.id).first()
+        if data['deleting'] == 'yes':
+            if folla:
+                db.session.delete(folla)
+                db.session.commit()
+                return make_response({'success': 'deleted'}, 204)
+            else:
+                return make_response({'error': 'already not following'},501)
+        else:
+            if folla:
+                return make_response({'error': ' already following'},501)
+            new_follow = Follow(reader_id = reader.id, writer_id = writer.id)
+            db.session.add(new_follow)
+            db.session.commit()
+            return make_response({'new_follower': {'handle': reader.handle, 'nickname': reader.nickname}}, 201)
+        
     def delete(self):
         pass
 
@@ -170,6 +203,15 @@ class Poast_by_id(Resource):
             return make_response(jsonify(poast.to_dict()), 200)
         else:
             return make_response({'error': 'not found'},404)
+
+class PoastsByUser(Resource):
+    def get(self, handle):
+        print(handle)
+        user = User.query.filter_by(handle=handle).first()
+        all_poasts = Poast.query.filter_by(user_id=user.id).all()
+        res_list = [{'ancestry': p.ancestry, 'timestamp': p.timestamp, 'text': p.text} for p in all_poasts]
+
+        return {'poasts': res_list}, 200
 
 class Thread(Resource):
     def get(self, root_id):
@@ -200,7 +242,6 @@ def login():
     user = User.query.filter(User.handle == handle).first()
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         session["user_id"] = user.id
-        print(user.to_dict())
         return make_response(user.to_dict(), 201)
     else:
         return { "message": "Invalid username or password" }, 401
@@ -229,6 +270,7 @@ api.add_resource(Follows, '/api/follows')
 api.add_resource(Notifications, '/api/<string:handle>/notifications')
 api.add_resource(ThumbsUps, '/api/thumbs')
 api.add_resource(UserByHandle, '/api/users/<string:handle>')
+api.add_resource(PoastsByUser, '/api/poasts_by_user/<string:handle>')
 
 @app.route('/')
 def index():

@@ -15,6 +15,7 @@ function App() {
   const params = useParams()
   const [haveUser, setHaveUser] = useState(null)
   const [base, setBase] = useState(null)
+  const [focusValue, setFocusValue] = useState(0)
 
   const POST_HEADERS = {
     'Content-Type': 'application/json',
@@ -90,16 +91,16 @@ function App() {
     },
     {
       path: `/profiles/:handle`,
-      element: <Profile currentUser={currentUser}/>
+      element: <Profile currentUser={currentUser} setFocusValue={setFocusValue}/>
     },
     {
       path: `/threads/:root_id`,
-      element: <Thread currentUser={currentUser} base={base} setBase={setBase}/>
+      element: <Thread currentUser={currentUser} base={base} setBase={setBase} focusValue={focusValue} setFocusValue={setFocusValue}/>
     },
-    {
-      path: `/feeds`,
-      element: <Feed currentUser={currentUser}/>
-    },
+    // {
+    //   path: `/feeds`,
+    //   element: <Feed currentUser={currentUser}/>
+    // },
     {
       path: '/compose/:parent_id',
       element: <Draft currentUser={currentUser} base={base} setBase={setBase}/>
